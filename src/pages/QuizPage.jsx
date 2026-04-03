@@ -86,22 +86,24 @@ export default function QuizPage() {
 
     const controller = new AbortController();
     abortRef.current = controller;
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     try {
+      // Picsum Photos — CORS nativo, fotos reales variadas, ideal para práctica descriptiva
       const res = await fetch(
-        `https://loremflickr.com/600/400/${activeCategory}?lock=${Date.now()}`,
+        `https://picsum.photos/600/400?random=${Date.now()}`,
         { signal: controller.signal }
       );
       clearTimeout(timeoutId);
       if (isStale()) return;
-      if (!res.ok) throw new Error('fetch failed');
+      if (!res.ok) throw new Error('picsum failed');
       const blob = await res.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
         if (isStale()) return;
         try {
-          setImageBase64(reader.result.split(',')[1]);
+          const base64 = reader.result.split(',')[1];
+          setImageBase64(base64);
           setImageUrl(reader.result);
           setLoadingImg(false);
         } catch {
@@ -112,8 +114,8 @@ export default function QuizPage() {
       reader.readAsDataURL(blob);
     } catch (err) {
       clearTimeout(timeoutId);
-      if (isStale()) return;  // fetch abortado por un reload más reciente — no hacer nada
-      console.warn('LoremFlickr failed, SVG fallback:', err.message);
+      if (isStale()) return;
+      console.warn('Picsum failed, SVG fallback:', err.message);
       svgFallback(activeCategory);
     }
   };
