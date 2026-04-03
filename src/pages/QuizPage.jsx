@@ -48,7 +48,11 @@ export default function QuizPage() {
     const matchingScenes = SCENES.filter(s => s.id === activeCategory);
     const candidates = matchingScenes.length > 0 ? matchingScenes : SCENES;
     const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
-    const blob = new Blob([randomScene.svg], { type: 'image/svg+xml;charset=utf-8' });
+    // Reemplaza width/height relativos por píxeles absolutos para que el <img> los renderice
+    const svgContent = randomScene.svg
+      .replace(/width="100%"/, 'width="600"')
+      .replace(/height="100%"/, 'height="400"');
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     setImageUrl(url);
     const img = new Image();

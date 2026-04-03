@@ -110,6 +110,22 @@ Return ONLY a perfectly formatted JSON object with no markdown formatting and no
  *   • Vocabulary — image-description register (B2) and academic register (C1+)
  *   • Spatial    — prepositional phrases that locate elements in an image
  */
+// Basic English vocabulary used to detect if the text is actually English
+const BASIC_ENGLISH = new Set([
+  'i','see','there','is','are','the','a','an','this','that','it','its','be','am',
+  'in','on','at','by','to','of','and','or','with','for','has','have','was','were',
+  'been','can','could','will','would','should','may','might','not','no','some','any',
+  'man','woman','people','person','child','boy','girl','dog','cat','car','house',
+  'tree','water','sky','sun','color','red','blue','green','white','black','yellow',
+  'big','small','large','old','new','tall','short','look','looks','stand','sit',
+  'walk','run','hold','wear','carry','seems','appear','shows','shown','image','photo',
+  'picture','background','foreground','left','right','center','front','back','top',
+  'bottom','one','two','three','many','few','several','wearing','holding','sitting',
+  'standing','walking','looking','between','around','behind','next','above','below',
+  'inside','outside','light','dark','bright','scene','room','street','person','table',
+  'chair','window','door','building','sky','ground','floor','wall','hand','head',
+]);
+
 export function evaluateWithHeuristics(text, lang = 'es') {
   const isEs = lang === 'es';
 
@@ -317,6 +333,30 @@ export function evaluateWithHeuristics(text, lang = 'es') {
     C1: ['conveys', 'composition', 'predominantly', 'furthermore'],
     C2: ['juxtaposition', 'connotes', 'elucidates', 'cohesion'],
   };
+
+  // ── isRelevant — detecta texto no inglés o completamente incoherente ────────
+  const alphaWords = words.filter(w => /^[a-z]{2,}$/.test(w));
+  const knownEnglishCount = alphaWords.filter(w => BASIC_ENGLISH.has(w)).length;
+  // Relevante si tiene al menos 3 palabras Y (≥1 palabra inglesa conocida O ≥4 palabras alfabéticas)
+  const isRelevant = wordCount >= 3 && (knownEnglishCount >= 1 || alphaWords.length >= 4);
+
+  if (!isRelevant) {
+    return {
+      isRelevant: false,
+      level: 'N/A',
+      levelName: isEs ? 'No válido' : 'Invalid',
+      encouragement: isEs
+        ? 'Tu texto no parece ser una descripción en inglés. Intenta describir la imagen con palabras en inglés.'
+        : 'Your text does not appear to be an English description. Try describing the image in English.',
+      strengths: '',
+      improvements: isEs
+        ? 'Describe lo que ves en la imagen usando inglés: colores, objetos, personas, acciones.'
+        : 'Describe what you see in the image using English: colors, objects, people, actions.',
+      improvedExamples: { basic: '', intermediate: '', advanced: '' },
+      keywords: [],
+      isFallback: true,
+    };
+  }
 
   return {
     isRelevant: true,
