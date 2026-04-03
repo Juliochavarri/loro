@@ -194,5 +194,208 @@ export const SCENES = [
       <polygon points="210,110 270,110 260,160 220,160" fill="#2c3e50"/>
       <polygon points="210,105 270,120 265,125 205,110" fill="#e74c3c"/>
     </svg>`
+  },
+  {
+    id: "school",
+    label: "School",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <rect width="480" height="270" fill="#f0f4ff"/>
+      <!-- blackboard -->
+      <rect x="60" y="30" width="360" height="120" fill="#2d6a4f" rx="6"/>
+      <rect x="70" y="40" width="340" height="100" fill="#40916c" rx="4"/>
+      <!-- chalk writing -->
+      <line x1="100" y1="75" x2="200" y2="75" stroke="#fff" stroke-width="3"/>
+      <line x1="100" y1="95" x2="250" y2="95" stroke="#fff" stroke-width="3"/>
+      <line x1="100" y1="115" x2="180" y2="115" stroke="#fff" stroke-width="3"/>
+      <text x="290" y="100" font-size="28" fill="#fff" font-family="serif">2+2=4</text>
+      <!-- chalk tray -->
+      <rect x="60" y="148" width="360" height="10" fill="#b7b7a4"/>
+      <rect x="80" y="150" width="20" height="6" fill="#fff"/>
+      <rect x="110" y="150" width="20" height="6" fill="#fff"/>
+      <!-- desks -->
+      <rect x="60" y="200" width="80" height="10" fill="#8b5e3c" rx="2"/>
+      <rect x="90" y="210" width="10" height="45" fill="#6b4226"/>
+      <rect x="200" y="200" width="80" height="10" fill="#8b5e3c" rx="2"/>
+      <rect x="230" y="210" width="10" height="45" fill="#6b4226"/>
+      <rect x="340" y="200" width="80" height="10" fill="#8b5e3c" rx="2"/>
+      <rect x="370" y="210" width="10" height="45" fill="#6b4226"/>
+      <!-- students (heads) -->
+      <circle cx="100" cy="195" r="14" fill="#f4a261"/>
+      <circle cx="240" cy="195" r="14" fill="#e9c46a"/>
+      <circle cx="380" cy="195" r="14" fill="#e76f51"/>
+    </svg>`
+  },
+  {
+    id: "city",
+    label: "City",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <rect width="480" height="270" fill="#a8dadc"/>
+      <!-- sun -->
+      <circle cx="420" cy="50" r="30" fill="#ffd166"/>
+      <!-- buildings -->
+      <rect x="20" y="100" width="60" height="170" fill="#457b9d"/>
+      <rect x="30" y="115" width="15" height="15" fill="#a8dadc"/>
+      <rect x="55" y="115" width="15" height="15" fill="#a8dadc"/>
+      <rect x="30" y="145" width="15" height="15" fill="#a8dadc"/>
+      <rect x="55" y="145" width="15" height="15" fill="#a8dadc"/>
+      <rect x="100" y="70" width="80" height="200" fill="#1d3557"/>
+      <rect x="110" y="85" width="20" height="20" fill="#a8dadc"/>
+      <rect x="145" y="85" width="20" height="20" fill="#a8dadc"/>
+      <rect x="110" y="120" width="20" height="20" fill="#ffd166"/>
+      <rect x="145" y="120" width="20" height="20" fill="#a8dadc"/>
+      <rect x="110" y="155" width="20" height="20" fill="#a8dadc"/>
+      <rect x="145" y="155" width="20" height="20" fill="#ffd166"/>
+      <rect x="200" y="110" width="70" height="160" fill="#e63946"/>
+      <rect x="210" y="125" width="18" height="18" fill="#a8dadc"/>
+      <rect x="242" y="125" width="18" height="18" fill="#a8dadc"/>
+      <rect x="210" y="155" width="18" height="18" fill="#a8dadc"/>
+      <rect x="242" y="155" width="18" height="18" fill="#a8dadc"/>
+      <rect x="290" y="90" width="90" height="180" fill="#457b9d"/>
+      <rect x="300" y="105" width="22" height="22" fill="#a8dadc"/>
+      <rect x="340" y="105" width="22" height="22" fill="#ffd166"/>
+      <rect x="300" y="140" width="22" height="22" fill="#a8dadc"/>
+      <rect x="340" y="140" width="22" height="22" fill="#a8dadc"/>
+      <rect x="400" y="130" width="70" height="140" fill="#1d3557"/>
+      <!-- road -->
+      <rect x="0" y="240" width="480" height="30" fill="#6b7280"/>
+      <line x1="0" y1="255" x2="480" y2="255" stroke="#ffd166" stroke-width="3" stroke-dasharray="30,20"/>
+      <!-- car -->
+      <rect x="150" y="243" width="60" height="20" fill="#e63946" rx="4"/>
+      <circle cx="165" cy="263" r="6" fill="#1d3557"/>
+      <circle cx="198" cy="263" r="6" fill="#1d3557"/>
+    </svg>`
+  },
+  {
+    id: "beach",
+    label: "Beach",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <!-- sky -->
+      <rect width="480" height="180" fill="#90e0ef"/>
+      <!-- sun -->
+      <circle cx="380" cy="55" r="40" fill="#ffd166"/>
+      <!-- clouds -->
+      <ellipse cx="120" cy="60" rx="45" ry="22" fill="#fff" opacity="0.8"/>
+      <ellipse cx="160" cy="50" rx="35" ry="20" fill="#fff" opacity="0.8"/>
+      <!-- sea -->
+      <rect x="0" y="160" width="480" height="60" fill="#0077b6"/>
+      <path d="M0 165 Q60 155 120 165 Q180 175 240 165 Q300 155 360 165 Q420 175 480 165" stroke="#00b4d8" stroke-width="4" fill="none"/>
+      <!-- sand -->
+      <rect x="0" y="210" width="480" height="60" fill="#fce4a0"/>
+      <!-- umbrella -->
+      <line x1="120" y1="180" x2="120" y2="240" stroke="#8b5e3c" stroke-width="4"/>
+      <path d="M80 185 Q120 150 160 185 Z" fill="#e63946"/>
+      <path d="M80 185 Q120 175 160 185" stroke="#fff" stroke-width="2" fill="none"/>
+      <!-- towel -->
+      <rect x="85" y="222" width="60" height="18" fill="#e9c46a" rx="4"/>
+      <!-- person lying -->
+      <ellipse cx="115" cy="226" rx="12" ry="10" fill="#f4a261"/>
+      <!-- ball -->
+      <circle cx="300" cy="218" r="15" fill="#e63946"/>
+      <line x1="300" y1="203" x2="300" y2="233" stroke="#fff" stroke-width="2"/>
+      <line x1="285" y1="218" x2="315" y2="218" stroke="#fff" stroke-width="2"/>
+      <!-- waves detail -->
+      <path d="M0 195 Q40 188 80 195 Q120 202 160 195 Q200 188 240 195 Q280 202 320 195 Q360 188 400 195 Q440 202 480 195" stroke="#00b4d8" stroke-width="2" fill="none" opacity="0.6"/>
+    </svg>`
+  },
+  {
+    id: "health",
+    label: "Health",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <rect width="480" height="270" fill="#f0faf9"/>
+      <!-- hospital bed -->
+      <rect x="80" y="150" width="200" height="15" fill="#b7d1e8" rx="4"/>
+      <rect x="80" y="165" width="200" height="60" fill="#ddeeff" rx="4"/>
+      <rect x="75" y="160" width="10" height="65" fill="#a0b8cc"/>
+      <rect x="275" y="160" width="10" height="65" fill="#a0b8cc"/>
+      <rect x="80" y="220" width="10" height="30" fill="#a0b8cc"/>
+      <rect x="270" y="220" width="10" height="30" fill="#a0b8cc"/>
+      <!-- pillow -->
+      <rect x="240" y="167" width="35" height="25" fill="#fff" rx="4"/>
+      <!-- patient head -->
+      <circle cx="257" cy="158" r="16" fill="#f4a261"/>
+      <!-- doctor -->
+      <rect x="340" y="130" width="40" height="70" fill="#fff"/>
+      <circle cx="360" cy="118" r="18" fill="#e9c46a"/>
+      <!-- stethoscope -->
+      <path d="M345 155 Q335 170 345 185 Q355 195 360 185" stroke="#2d6a4f" stroke-width="4" fill="none"/>
+      <circle cx="360" cy="185" r="6" fill="#2d6a4f"/>
+      <!-- cross symbol -->
+      <rect x="210" y="60" width="60" height="60" fill="#e63946" rx="8"/>
+      <rect x="225" y="73" width="30" height="10" fill="#fff"/>
+      <rect x="232" y="66" width="10" height="24" fill="#fff"/>
+      <!-- IV bag -->
+      <rect x="150" y="50" width="25" height="35" fill="#90e0ef" rx="4"/>
+      <line x1="162" y1="85" x2="162" y2="150" stroke="#90e0ef" stroke-width="3"/>
+      <line x1="145" y1="45" x2="175" y2="45" stroke="#888" stroke-width="3"/>
+    </svg>`
+  },
+  {
+    id: "shopping",
+    label: "Shopping",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <rect width="480" height="270" fill="#fff8f0"/>
+      <!-- store shelves -->
+      <rect x="20" y="60" width="440" height="10" fill="#8b5e3c"/>
+      <rect x="20" y="130" width="440" height="10" fill="#8b5e3c"/>
+      <rect x="20" y="200" width="440" height="10" fill="#8b5e3c"/>
+      <!-- products row 1 -->
+      <rect x="40" y="35" width="28" height="25" fill="#e63946" rx="3"/>
+      <rect x="78" y="38" width="22" height="22" fill="#ffd166" rx="3"/>
+      <rect x="110" y="32" width="30" height="28" fill="#2d6a4f" rx="3"/>
+      <rect x="150" y="36" width="25" height="24" fill="#457b9d" rx="3"/>
+      <rect x="185" y="33" width="28" height="27" fill="#e9c46a" rx="3"/>
+      <rect x="223" y="37" width="22" height="23" fill="#e76f51" rx="3"/>
+      <rect x="255" y="34" width="30" height="26" fill="#a8dadc" rx="3"/>
+      <rect x="295" y="38" width="25" height="22" fill="#e63946" rx="3"/>
+      <!-- products row 2 -->
+      <rect x="40" y="105" width="28" height="25" fill="#ffd166" rx="3"/>
+      <rect x="78" y="108" width="22" height="22" fill="#2d6a4f" rx="3"/>
+      <rect x="110" y="102" width="30" height="28" fill="#e63946" rx="3"/>
+      <rect x="150" y="106" width="25" height="24" fill="#e9c46a" rx="3"/>
+      <rect x="185" y="103" width="28" height="27" fill="#457b9d" rx="3"/>
+      <!-- shopping cart -->
+      <path d="M320 170 L340 170 L355 210 L410 210 L420 180 L340 180" stroke="#8b5e3c" stroke-width="4" fill="none"/>
+      <circle cx="360" cy="220" r="8" fill="#555"/>
+      <circle cx="405" cy="220" r="8" fill="#555"/>
+      <!-- person with bag -->
+      <circle cx="120" cy="175" r="18" fill="#f4a261"/>
+      <rect x="106" y="193" width="28" height="45" fill="#457b9d" rx="4"/>
+      <rect x="100" y="210" width="15" height="8" fill="#e9c46a" rx="2"/>
+    </svg>`
+  },
+  {
+    id: "family",
+    label: "Family",
+    svg: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <rect width="480" height="270" fill="#fff9f0"/>
+      <!-- house background -->
+      <rect x="100" y="100" width="280" height="170" fill="#fce4a0"/>
+      <polygon points="100,100 240,20 380,100" fill="#e63946"/>
+      <!-- door -->
+      <rect x="205" y="195" width="50" height="75" fill="#8b5e3c" rx="4"/>
+      <circle cx="248" cy="232" r="4" fill="#ffd166"/>
+      <!-- windows -->
+      <rect x="125" y="130" width="50" height="45" fill="#a8dadc" rx="4"/>
+      <line x1="150" y1="130" x2="150" y2="175" stroke="#fff" stroke-width="2"/>
+      <line x1="125" y1="152" x2="175" y2="152" stroke="#fff" stroke-width="2"/>
+      <rect x="305" y="130" width="50" height="45" fill="#a8dadc" rx="4"/>
+      <line x1="330" y1="130" x2="330" y2="175" stroke="#fff" stroke-width="2"/>
+      <line x1="305" y1="152" x2="355" y2="152" stroke="#fff" stroke-width="2"/>
+      <!-- family: dad, mom, child -->
+      <!-- dad -->
+      <circle cx="155" cy="225" r="18" fill="#f4a261"/>
+      <rect x="140" y="243" width="30" height="27" fill="#457b9d" rx="4"/>
+      <!-- mom -->
+      <circle cx="330" cy="222" r="18" fill="#e9c46a"/>
+      <path d="M312 243 Q330 270 348 243 Z" fill="#e63946"/>
+      <!-- child -->
+      <circle cx="242" cy="232" r="13" fill="#fca311"/>
+      <rect x="231" y="245" width="22" height="20" fill="#2d6a4f" rx="3"/>
+      <!-- sun above house -->
+      <circle cx="420" cy="45" r="28" fill="#ffd166"/>
+      <!-- tree -->
+      <rect x="42" y="190" width="12" height="55" fill="#8b5e3c"/>
+      <circle cx="48" cy="170" r="35" fill="#2d6a4f"/>
+    </svg>`
   }
 ];

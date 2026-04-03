@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Cpu, FlaskConical, Briefcase, Trophy, TreePine, PawPrint, PlaneTakeoff, Palette, LogOut, Music, Utensils, Shirt, Film, Clock } from 'lucide-react';
+import { Cpu, FlaskConical, Briefcase, Trophy, TreePine, PawPrint, PlaneTakeoff, Palette, LogOut, Music, Utensils, Shirt, Film, Clock, GraduationCap, Building2, Waves, HeartPulse, ShoppingCart, Users } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSelector from '../components/LanguageSelector';
 
@@ -17,7 +17,13 @@ const CATEGORIES = [
   { id: 'music', label: 'Music', icon: <Music /> },
   { id: 'food', label: 'Food', icon: <Utensils /> },
   { id: 'fashion', label: 'Fashion', icon: <Shirt /> },
-  { id: 'movies', label: 'Movies', icon: <Film /> }
+  { id: 'movies',   label: 'Movies',   icon: <Film /> },
+  { id: 'school',   label: 'School',   icon: <GraduationCap /> },
+  { id: 'city',     label: 'City',     icon: <Building2 /> },
+  { id: 'beach',    label: 'Beach',    icon: <Waves /> },
+  { id: 'health',   label: 'Health',   icon: <HeartPulse /> },
+  { id: 'shopping', label: 'Shopping', icon: <ShoppingCart /> },
+  { id: 'family',   label: 'Family',   icon: <Users /> },
 ];
 
 export default function HomePage() {
