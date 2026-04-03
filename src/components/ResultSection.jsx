@@ -66,8 +66,12 @@ export default function ResultSection({ evaluationData, selectedLevel, onNext, o
     strengths,
     improvements,
     improvedExamples = {},
-    keywords
+    keywords,
+    keywordsByTab,
   } = evaluationData;
+
+  // Use tab-synced keywords when available (heuristics), otherwise flat array (Gemini)
+  const activeKeywords = keywordsByTab ? keywordsByTab[exampleTab] : keywords;
 
   if (!isRelevant) {
     return (
@@ -168,11 +172,11 @@ export default function ResultSection({ evaluationData, selectedLevel, onNext, o
               <p style={{ color: "#ddd", fontSize: "14px", margin: 0, lineHeight: "1.6" }}>{improvements}</p>
             </div>
             
-            {keywords && keywords.length > 0 && (
+            {activeKeywords && activeKeywords.length > 0 && (
               <div>
-                <div style={{ color: "rgb(77, 171, 247)", fontSize: "12px", letterSpacing: "1.5px", fontFamily: "monospace", marginBottom: "8px", fontWeight: "bold" }}>{t.vocabKey} ({lKey})</div>
+                <div style={{ color: "rgb(77, 171, 247)", fontSize: "12px", letterSpacing: "1.5px", fontFamily: "monospace", marginBottom: "8px", fontWeight: "bold" }}>{t.vocabKey}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {keywords.map(kw => {
+                  {activeKeywords.map(kw => {
                     const isOpen = activeTooltip === kw;
                     const isLoading = loadingKw === kw;
                     const translation = translations[kw];
@@ -224,7 +228,7 @@ export default function ResultSection({ evaluationData, selectedLevel, onNext, o
                     return (
                     <button
                       key={lvl}
-                      onClick={() => setExampleTab(lvl)}
+                      onClick={() => { setExampleTab(lvl); setActiveTooltip(null); }}
                       style={{
                         padding: '4px 8px', fontSize: '10px', fontFamily: 'monospace', 
                         cursor: 'pointer', borderRadius: '4px', border: `1px solid ${exampleTab === lvl ? tabColor : 'rgba(255,255,255,0.15)'}`,

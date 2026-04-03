@@ -407,16 +407,17 @@ export function evaluateWithHeuristics(text, lang = 'es', category = 'all') {
           'The image depicts a vibrant and dynamic scene in which individuals can be observed interacting with their surroundings. The foreground is dominated by a series of objects that suggest a sense of purposeful activity, while the background, though less defined, provides contextual details that enrich the overall composition and invite further interpretation.',
       };
 
-  // ── Keywords — category-aware when possible, otherwise by level ───────────
+  // ── Keywords per tab (basic→A1, intermediate→B1, advanced→C1) ───────────
   const LEVEL_KEYWORDS = {
     A1: ['color', 'person', 'big', 'there is'],
-    A2: ['there are', 'next to', 'wearing', 'looks like'],
     B1: ['appears to', 'in the foreground', 'might be', 'while'],
-    B2: ['depicts', 'is surrounded by', 'can be seen', 'in contrast'],
     C1: ['conveys', 'composition', 'predominantly', 'furthermore'],
-    C2: ['juxtaposition', 'connotes', 'elucidates', 'cohesion'],
   };
-  const keywords = catData ? catData.keywords[level] : LEVEL_KEYWORDS[level];
+  const keywordsByTab = {
+    basic:        catData ? catData.keywords['A1'] : LEVEL_KEYWORDS['A1'],
+    intermediate: catData ? catData.keywords['B1'] : LEVEL_KEYWORDS['B1'],
+    advanced:     catData ? catData.keywords['C1'] : LEVEL_KEYWORDS['C1'],
+  };
 
   // ── isRelevant — detecta texto no inglés o completamente incoherente ────────
   const alphaWords = words.filter(w => /^[a-z]{2,}$/.test(w));
@@ -459,7 +460,7 @@ export function evaluateWithHeuristics(text, lang = 'es', category = 'all') {
     strengths: strList.join('. ') + '.',
     improvements: impList.join('. ') + '.',
     improvedExamples,
-    keywords,
+    keywordsByTab,
     isFallback: true,
   };
 }
