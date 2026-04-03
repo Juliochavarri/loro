@@ -24,6 +24,7 @@ export default function QuizPage() {
   const [apiKey, setApiKey] = useState('AIzaSyCCbtGYuofzQnizhpfUZ13OesIWq2YYWcY');
 
   const abortRef = useRef(null);
+  const lastSceneIdRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,8 +47,11 @@ export default function QuizPage() {
 
   const svgFallback = (activeCategory) => {
     const matchingScenes = SCENES.filter(s => s.id === activeCategory);
-    const candidates = matchingScenes.length > 0 ? matchingScenes : SCENES;
+    const pool = matchingScenes.length > 0 ? matchingScenes : SCENES;
+    // Evita repetir la misma escena consecutivamente
+    const candidates = pool.length > 1 ? pool.filter(s => s.id !== lastSceneIdRef.current) : pool;
     const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
+    lastSceneIdRef.current = randomScene.id;
     // Reemplaza width/height relativos por píxeles absolutos para que el <img> los renderice
     const svgContent = randomScene.svg
       .replace(/width="100%"/, 'width="600"')
@@ -94,7 +98,7 @@ export default function QuizPage() {
     const controller = new AbortController();
     abortRef.current = controller;
     // Timeout de 5s — si LoremFlickr no responde, cae a SVG
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     try {
       const res = await fetch(
