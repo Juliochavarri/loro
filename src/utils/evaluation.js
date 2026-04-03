@@ -236,26 +236,25 @@ export function evaluateWithHeuristics(text, lang = 'es') {
   const levelName = (isEs ? NAMES.es : NAMES.en)[level];
 
   // ── Encouragement ─────────────────────────────────────────────────────────
+  const suffix = isEs
+    ? ' (análisis lingüístico — sin evaluación visual)'
+    : ' (linguistic analysis — no visual evaluation)';
   const ENC = {
     es: {
-      A1: wordCount < 5
-        ? 'Intenta escribir oraciones completas para describir lo que ves.'
-        : 'Buen comienzo. Añade más detalles y conecta tus ideas.',
-      A2: 'Usas vocabulario básico correctamente. El siguiente paso es combinar oraciones con conectores.',
-      B1: 'Buen manejo del inglés cotidiano. Incorpora más variedad estructural y vocabulario específico.',
-      B2: 'Descripción sólida y detallada. Profundiza en voz pasiva, cláusulas subordinadas y registro académico.',
-      C1: 'Excelente dominio del idioma. Tu descripción es precisa y bien articulada.',
-      C2: 'Nivel de maestría. Tu descripción es sofisticada, fluida y expresiva.',
+      A1: (wordCount < 5 ? 'Intenta escribir oraciones completas.' : 'Buen comienzo. Añade más detalles.') + suffix,
+      A2: 'Vocabulario básico correcto. Combina oraciones con conectores.' + suffix,
+      B1: 'Buen inglés cotidiano. Incorpora variedad estructural.' + suffix,
+      B2: 'Descripción sólida. Profundiza en voz pasiva y subordinadas.' + suffix,
+      C1: 'Excelente dominio. Descripción precisa y articulada.' + suffix,
+      C2: 'Nivel de maestría. Sofisticado y expresivo.' + suffix,
     },
     en: {
-      A1: wordCount < 5
-        ? 'Try to write complete sentences describing what you see.'
-        : 'Good start! Add more details and connect your ideas.',
-      A2: 'You use basic vocabulary correctly. Next step: combine sentences with connectors.',
-      B1: 'Good control of everyday English. Aim for more structural variety and specific vocabulary.',
-      B2: 'Solid and detailed description. Deepen your use of passive voice, subordinate clauses, and academic register.',
-      C1: 'Excellent command of the language. Your description is precise and well-articulated.',
-      C2: 'Mastery level. Your description is sophisticated, fluent, and expressive.',
+      A1: (wordCount < 5 ? 'Try to write complete sentences.' : 'Good start! Add more details.') + suffix,
+      A2: 'Basic vocabulary used correctly. Combine sentences with connectors.' + suffix,
+      B1: 'Good everyday English. Aim for more structural variety.' + suffix,
+      B2: 'Solid description. Deepen passive voice and subordinate clauses.' + suffix,
+      C1: 'Excellent command. Precise and well-articulated.' + suffix,
+      C2: 'Mastery level. Sophisticated and expressive.' + suffix,
     },
   };
   const encouragement = (isEs ? ENC.es : ENC.en)[level];
@@ -337,8 +336,8 @@ export function evaluateWithHeuristics(text, lang = 'es') {
   // ── isRelevant — detecta texto no inglés o completamente incoherente ────────
   const alphaWords = words.filter(w => /^[a-z]{2,}$/.test(w));
   const knownEnglishCount = alphaWords.filter(w => BASIC_ENGLISH.has(w)).length;
-  // Relevante si tiene al menos 3 palabras Y (≥1 palabra inglesa conocida O ≥4 palabras alfabéticas)
-  const isRelevant = wordCount >= 3 && (knownEnglishCount >= 1 || alphaWords.length >= 4);
+  // Relevante si tiene al menos 4 palabras Y al menos 1 palabra inglesa reconocida
+  const isRelevant = wordCount >= 4 && knownEnglishCount >= 1;
 
   if (!isRelevant) {
     return {
