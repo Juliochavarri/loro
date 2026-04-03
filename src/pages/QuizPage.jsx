@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Settings, Loader2 } from 'lucide-react';
@@ -23,6 +23,8 @@ export default function QuizPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [apiKey, setApiKey] = useState('AIzaSyCCbtGYuofzQnizhpfUZ13OesIWq2YYWcY');
 
+  const abortRef = useRef(null);
+
   const location = useLocation();
   const navigate = useNavigate();
   const categories = location.state?.categories || ['all'];
@@ -42,91 +44,70 @@ export default function QuizPage() {
     localStorage.setItem('gemini_api_key', key);
   };
 
+  const svgFallback = (activeCategory) => {
+    const matchingScenes = SCENES.filter(s => s.id === activeCategory);
+    const candidates = matchingScenes.length > 0 ? matchingScenes : SCENES;
+    const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
+    const blob = new Blob([randomScene.svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    setImageUrl(url);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 600; canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 600, 400);
+      ctx.drawImage(img, 0, 0, 600, 400);
+      setImageBase64(canvas.toDataURL('image/jpeg', 0.9).split(',')[1]);
+      setLoadingImg(false);
+    };
+    img.onerror = () => { setImageBase64(''); setLoadingImg(false); };
+    img.src = url;
+  };
+
   const fetchNewImage = async () => {
+    // Cancela cualquier fetch anterior en vuelo
+    if (abortRef.current) abortRef.current.abort();
+
     setLoadingImg(true);
 
-    // Pedagogical Fix: Instead of combining all categories with ',' (which forces an impossible AND match in APIs),
-    // we pick ONE random active category for this specific round.
     let activeCategory = 'lifestyle';
     if (categories && categories.length > 0 && categories[0] !== 'all') {
       activeCategory = categories[Math.floor(Math.random() * categories.length)];
     }
 
     if (level === 'A1/A2') {
-      // Try to find an SVG scene that matches the exact category being practiced
-      const matchingScenes = SCENES.filter(s => s.id === activeCategory);
-      const candidates = matchingScenes.length > 0 ? matchingScenes : SCENES;
-      const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
-      const blob = new Blob([randomScene.svg], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      setImageUrl(url); // Render naturally to DOM
-
-      // Background converter for Gemini (must be JPEG/PNG)
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = 600;
-        canvas.height = 400;
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0,0,600,400);
-        ctx.drawImage(img, 0, 0, 600, 400);
-        setImageBase64(canvas.toDataURL("image/jpeg", 0.9).split(',')[1]);
-        setLoadingImg(false);
-      };
-      img.src = url;
+      svgFallback(activeCategory);
       return;
     }
 
-    const timestamp = new Date().getTime();
-    
-    // Fetch a real-life situation based ONLY on the single active category chosen above
-    const targetUrl = `https://loremflickr.com/600/400/${activeCategory},situational/all?lock=${timestamp}`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-
-    const picsumFallbackUrl = `https://picsum.photos/seed/${timestamp}/600/400`;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    // Timeout de 5s — si LoremFlickr no responde, cae a SVG
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     try {
-      let res = await fetch(proxyUrl);
-      if (!res.ok) {
-        throw new Error("Proxy failed");
-      }
-
+      const res = await fetch(
+        `https://loremflickr.com/600/400/${activeCategory}?lock=${Date.now()}`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
       const blob = await res.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64Data = reader.result.split(',')[1];
-        setImageBase64(base64Data);
+        setImageBase64(reader.result.split(',')[1]);
         setImageUrl(reader.result);
         setLoadingImg(false);
       };
       reader.readAsDataURL(blob);
     } catch (err) {
-      console.warn("Proxy/LoremFlickr failed, using SVG scene fallback:", err);
-      const matchingScenes = SCENES.filter(s => s.id === activeCategory);
-      const candidates = matchingScenes.length > 0 ? matchingScenes : SCENES;
-      const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
-      const blob = new Blob([randomScene.svg], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      setImageUrl(url);
-
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 600;
-        canvas.height = 400;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 600, 400);
-        ctx.drawImage(img, 0, 0, 600, 400);
-        setImageBase64(canvas.toDataURL('image/jpeg', 0.9).split(',')[1]);
-        setLoadingImg(false);
-      };
-      img.onerror = () => {
-        setImageBase64('');
-        setLoadingImg(false);
-      };
-      img.src = url;
+      clearTimeout(timeoutId);
+      if (err.name !== 'AbortError') {
+        console.warn('LoremFlickr failed, using SVG fallback:', err.message);
+      }
+      svgFallback(activeCategory);
     }
   };
 
