@@ -138,7 +138,14 @@ export default function QuizPage() {
       setShowResult(true);
     } catch (error) {
       console.error("AI Error:", error);
-      setEvaluationData(evaluateWithHeuristics(text, lang));
+      const heuristic = evaluateWithHeuristics(text, lang);
+      // Cuando Gemini falla no podemos verificar si el texto coincide con la imagen
+      heuristic.isRelevant = heuristic.isRelevant; // mantiene la detección lingüística
+      heuristic.encouragement = (lang === 'es'
+        ? '⚠️ Sin conexión a IA — no se pudo verificar si describiste esta imagen en particular. '
+        : '⚠️ AI unavailable — could not verify if you described this specific image. ')
+        + heuristic.encouragement;
+      setEvaluationData(heuristic);
       setShowResult(true);
     } finally {
       setIsEvaluating(false);

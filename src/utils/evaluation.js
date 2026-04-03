@@ -53,7 +53,12 @@ Return ONLY a perfectly formatted JSON object with no markdown formatting and no
     ]
   };
 
-  const modelsToTry = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+  const modelsToTry = [
+    'gemini-2.0-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-8b',
+  ];
   let lastError = null;
 
   for (const model of modelsToTry) {
