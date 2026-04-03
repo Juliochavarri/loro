@@ -336,8 +336,17 @@ export function evaluateWithHeuristics(text, lang = 'es') {
   // ── isRelevant — detecta texto no inglés o completamente incoherente ────────
   const alphaWords = words.filter(w => /^[a-z]{2,}$/.test(w));
   const knownEnglishCount = alphaWords.filter(w => BASIC_ENGLISH.has(w)).length;
-  // Relevante si tiene al menos 4 palabras Y al menos 1 palabra inglesa reconocida
-  const isRelevant = wordCount >= 4 && knownEnglishCount >= 1;
+
+  // Detecta si el texto contiene lenguaje visual (colores, posiciones, objetos, acciones descriptivas)
+  const hasVisualContent =
+    /\b(red|blue|green|yellow|white|black|orange|purple|brown|pink|gray|grey|dark|light|bright|colorful)\b/.test(t) ||
+    /\b(left|right|center|middle|top|bottom|background|foreground|front|back|above|below|beside|next to|in front|behind|near|around)\b/.test(t) ||
+    /\b(there is|there are|i can see|you can see|the image|the picture|the photo|shows|show|depicts|features|contains)\b/.test(t) ||
+    /\b(standing|sitting|walking|running|holding|wearing|looking|smiling|lying|playing|working|eating|drinking|talking)\b/.test(t) ||
+    /\b(person|man|woman|people|child|boy|girl|animal|dog|cat|car|house|tree|building|table|chair|room|street|sky|water|floor|wall|window|hand|face|object)\b/.test(t);
+
+  // Relevante si: ≥4 palabras, ≥1 palabra inglesa reconocida, Y contiene lenguaje visual/descriptivo
+  const isRelevant = wordCount >= 4 && knownEnglishCount >= 1 && hasVisualContent;
 
   if (!isRelevant) {
     return {
