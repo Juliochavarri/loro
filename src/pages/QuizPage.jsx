@@ -57,14 +57,19 @@ export default function QuizPage() {
     setImageUrl(url);
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 600; canvas.height = 400;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 600, 400);
-      ctx.drawImage(img, 0, 0, 600, 400);
-      setImageBase64(canvas.toDataURL('image/jpeg', 0.9).split(',')[1]);
-      setLoadingImg(false);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 600; canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 600, 400);
+        ctx.drawImage(img, 0, 0, 600, 400);
+        setImageBase64(canvas.toDataURL('image/jpeg', 0.9).split(',')[1]);
+      } catch {
+        setImageBase64('');
+      } finally {
+        setLoadingImg(false);
+      }
     };
     img.onerror = () => { setImageBase64(''); setLoadingImg(false); };
     img.src = url;
@@ -101,10 +106,16 @@ export default function QuizPage() {
       const blob = await res.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageBase64(reader.result.split(',')[1]);
-        setImageUrl(reader.result);
+        try {
+          setImageBase64(reader.result.split(',')[1]);
+          setImageUrl(reader.result);
+        } catch {
+          svgFallback(activeCategory);
+          return;
+        }
         setLoadingImg(false);
       };
+      reader.onerror = () => svgFallback(activeCategory);
       reader.readAsDataURL(blob);
     } catch (err) {
       clearTimeout(timeoutId);
