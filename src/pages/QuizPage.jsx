@@ -26,6 +26,7 @@ export default function QuizPage() {
   const abortRef = useRef(null);
   const lastSceneIdRef = useRef(null);
   const fetchIdRef = useRef(0);
+  const activeCategoryRef = useRef('all');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ export default function QuizPage() {
   };
 
   const svgFallback = (activeCategory) => {
+    activeCategoryRef.current = activeCategory;
     const matchingScenes = SCENES.filter(s => s.id === activeCategory);
     const pool = matchingScenes.length > 0 ? matchingScenes : SCENES;
     const candidates = pool.length > 1
@@ -78,6 +80,7 @@ export default function QuizPage() {
     if (categories && categories.length > 0 && categories[0] !== 'all') {
       activeCategory = categories[Math.floor(Math.random() * categories.length)];
     }
+    activeCategoryRef.current = activeCategory;
 
     if (level === 'A1/A2') {
       svgFallback(activeCategory);
@@ -133,12 +136,12 @@ export default function QuizPage() {
         const result = await evaluateWithAI(imageBase64, 'image/jpeg', text, apiKey, lang);
         setEvaluationData(result);
       } else {
-        setEvaluationData(evaluateWithHeuristics(text, lang));
+        setEvaluationData(evaluateWithHeuristics(text, lang, activeCategoryRef.current));
       }
       setShowResult(true);
     } catch (error) {
       console.error("AI Error:", error);
-      const heuristic = evaluateWithHeuristics(text, lang);
+      const heuristic = evaluateWithHeuristics(text, lang, activeCategoryRef.current);
       // Cuando Gemini falla no podemos verificar si el texto coincide con la imagen
       heuristic.isRelevant = heuristic.isRelevant; // mantiene la detección lingüística
       heuristic.encouragement = (lang === 'es'

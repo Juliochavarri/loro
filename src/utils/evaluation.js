@@ -131,7 +131,83 @@ const BASIC_ENGLISH = new Set([
   'chair','window','door','building','sky','ground','floor','wall','hand','head',
 ]);
 
-export function evaluateWithHeuristics(text, lang = 'es') {
+// Category-specific keywords and improved example scenes for heuristic fallback
+const CATEGORY_DATA = {
+  technology: {
+    keywords: { A1: ['computer', 'phone', 'screen', 'button'], A2: ['device', 'keyboard', 'cable', 'charging'], B1: ['software', 'wireless', 'interface', 'display'], B2: ['digital', 'bandwidth', 'processor', 'automated'], C1: ['infrastructure', 'algorithm', 'encrypted', 'integrated'], C2: ['interoperability', 'middleware', 'latency', 'scalable'] },
+    scene: { basic: 'There is a computer on a desk. A person is using it.', intermediate: 'The image shows a person working at a computer. There is a keyboard and a screen in front of them. Some cables are visible on the desk.', advanced: 'The image depicts a modern workspace in which a person appears to be engaged with a digital device. Several pieces of technology, including a monitor and peripheral equipment, can be seen arranged on the desk, suggesting a professional environment.' },
+  },
+  biology: {
+    keywords: { A1: ['plant', 'leaf', 'flower', 'tree'], A2: ['cell', 'root', 'grow', 'seed'], B1: ['organism', 'species', 'habitat', 'tissue'], B2: ['ecosystem', 'adaptation', 'microscope', 'specimen'], C1: ['taxonomy', 'biodiversity', 'photosynthesis', 'membrane'], C2: ['mitosis', 'symbiosis', 'chromosome', 'enzyme'] },
+    scene: { basic: 'There is a plant with green leaves. It is very big.', intermediate: 'The image shows a detailed view of a plant. The leaves are bright green and the roots can be seen at the bottom. It looks like a natural environment.', advanced: 'The image depicts a botanical specimen whose intricate leaf structure reveals a complex pattern of veins, suggesting a well-developed vascular system characteristic of mature flora in a temperate ecosystem.' },
+  },
+  work: {
+    keywords: { A1: ['office', 'desk', 'chair', 'pen'], A2: ['meeting', 'laptop', 'colleague', 'document'], B1: ['conference', 'presentation', 'deadline', 'client'], B2: ['collaboration', 'strategy', 'productivity', 'negotiate'], C1: ['stakeholder', 'workflow', 'delegation', 'corporate'], C2: ['synergy', 'procurement', 'organizational', 'leverage'] },
+    scene: { basic: 'There are people in an office. They are working.', intermediate: 'The image shows a busy office environment where several people are seated at desks working on their computers. Some documents and notebooks are visible on the tables.', advanced: 'The image depicts a contemporary open-plan office in which colleagues appear to be collaborating on a project. The arrangement of workstations and shared resources suggests a focus on teamwork and efficient communication.' },
+  },
+  sports: {
+    keywords: { A1: ['ball', 'run', 'team', 'game'], A2: ['player', 'score', 'court', 'match'], B1: ['athlete', 'compete', 'stadium', 'referee'], B2: ['tournament', 'championship', 'agility', 'strategy'], C1: ['endurance', 'coordination', 'sportsmanship', 'trajectory'], C2: ['biomechanics', 'tactical', 'physiological', 'aerodynamic'] },
+    scene: { basic: 'People are playing a sport. They are running fast.', intermediate: 'The image shows athletes competing in a sporting event. One player appears to be in possession of the ball while others are running nearby. The crowd can be seen in the background.', advanced: 'The image captures a dynamic moment during what appears to be a competitive sporting event, in which athletes demonstrate remarkable agility and coordination as they strive to outmaneuver their opponents on the field.' },
+  },
+  nature: {
+    keywords: { A1: ['tree', 'river', 'sky', 'grass'], A2: ['forest', 'mountain', 'cloud', 'sunset'], B1: ['landscape', 'wildlife', 'terrain', 'valley'], B2: ['vegetation', 'altitude', 'erosion', 'habitat'], C1: ['biodiversity', 'watershed', 'ecosystem', 'geological'], C2: ['topography', 'microclimate', 'sedimentary', 'indigenous'] },
+    scene: { basic: 'There are trees and a river. The sky is blue.', intermediate: 'The image shows a peaceful natural landscape with tall green trees and a calm river in the foreground. The sky above is bright blue with a few white clouds.', advanced: 'The image depicts an expansive natural landscape in which dense vegetation lines the banks of a gently flowing river. The interplay of light and shadow across the terrain creates a sense of depth and tranquility characteristic of undisturbed wilderness.' },
+  },
+  animals: {
+    keywords: { A1: ['dog', 'cat', 'bird', 'fish'], A2: ['wild', 'fur', 'wings', 'paw'], B1: ['predator', 'habitat', 'species', 'mammal'], B2: ['camouflage', 'nocturnal', 'instinct', 'migration'], C1: ['carnivorous', 'territorial', 'biodiversity', 'adaptation'], C2: ['phylogenetic', 'morphology', 'symbiotic', 'endemic'] },
+    scene: { basic: 'There is a big animal. It has four legs.', intermediate: 'The image shows an animal standing in what appears to be its natural habitat. It is looking directly at the camera and its fur or feathers are clearly visible.', advanced: 'The image captures a striking portrait of an animal that appears entirely at ease within its natural environment. Its physical features, including coloring, posture, and expression, reveal subtle adaptations that reflect the demands of its ecosystem.' },
+  },
+  travel: {
+    keywords: { A1: ['map', 'bag', 'plane', 'hotel'], A2: ['luggage', 'airport', 'ticket', 'journey'], B1: ['destination', 'itinerary', 'landmark', 'culture'], B2: ['expedition', 'customs', 'accommodation', 'excursion'], C1: ['cosmopolitan', 'infrastructure', 'heritage', 'immersive'], C2: ['geopolitical', 'nomadic', 'diplomatic', 'itinerant'] },
+    scene: { basic: 'A person has a bag. They are at the airport.', intermediate: 'The image shows a traveler at what appears to be an airport or train station. They are carrying luggage and looking at a destination board. Other passengers can be seen in the background.', advanced: 'The image depicts a traveler navigating a busy transportation hub, their luggage suggesting an imminent departure. The surrounding architecture and signage point to an international setting, evoking a sense of cultural curiosity and adventure.' },
+  },
+  art: {
+    keywords: { A1: ['paint', 'color', 'draw', 'brush'], A2: ['canvas', 'gallery', 'artist', 'style'], B1: ['sculpture', 'portrait', 'abstract', 'texture'], B2: ['composition', 'perspective', 'medium', 'technique'], C1: ['aesthetics', 'expressionism', 'patronage', 'curator'], C2: ['iconography', 'semiotics', 'chiaroscuro', 'provenance'] },
+    scene: { basic: 'There is a painting on the wall. It has many colors.', intermediate: 'The image shows an artwork displayed in what appears to be a gallery. The painting features bold colors and interesting shapes that draw the viewer\'s eye across the canvas.', advanced: 'The image presents an evocative work of art in which the artist has masterfully employed contrasting tones and dynamic brushwork to create a sense of movement and emotional depth, inviting the viewer to interpret its layered meaning.' },
+  },
+  music: {
+    keywords: { A1: ['song', 'sing', 'drum', 'guitar'], A2: ['concert', 'band', 'melody', 'rhythm'], B1: ['instrument', 'performance', 'audience', 'microphone'], B2: ['harmony', 'composition', 'acoustics', 'genre'], C1: ['orchestration', 'improvisation', 'virtuoso', 'timbre'], C2: ['counterpoint', 'polyrhythm', 'dissonance', 'philharmonic'] },
+    scene: { basic: 'A person is playing music. They have a guitar.', intermediate: 'The image shows a musician performing on stage. They are playing a guitar and appear to be fully absorbed in the music. Stage lights illuminate the scene from above.', advanced: 'The image captures a live musical performance in which the musician, bathed in stage lighting, appears entirely immersed in the act of playing. The energy conveyed through their posture and expression suggests a deep emotional connection to the music.' },
+  },
+  food: {
+    keywords: { A1: ['eat', 'dish', 'drink', 'fruit'], A2: ['recipe', 'ingredient', 'cook', 'meal'], B1: ['cuisine', 'flavor', 'portion', 'garnish'], B2: ['culinary', 'seasoning', 'texture', 'presentation'], C1: ['gastronomy', 'fermentation', 'umami', 'artisanal'], C2: ['molecular', 'provenance', 'terroir', 'emulsification'] },
+    scene: { basic: 'There is food on a plate. It looks good.', intermediate: 'The image shows a well-presented dish on a dining table. The food appears freshly prepared and is decorated with colorful garnishes. A glass of water can also be seen nearby.', advanced: 'The image depicts an elegantly plated dish whose careful arrangement of ingredients reflects both culinary expertise and aesthetic sensibility. The vibrant colors and varied textures suggest a sophisticated palate and attention to the visual experience of dining.' },
+  },
+  fashion: {
+    keywords: { A1: ['shirt', 'dress', 'shoes', 'hat'], A2: ['outfit', 'style', 'fabric', 'color'], B1: ['fashion', 'trend', 'designer', 'wardrobe'], B2: ['aesthetic', 'silhouette', 'collection', 'tailored'], C1: ['haute couture', 'minimalist', 'embroidered', 'sustainable'], C2: ['avant-garde', 'deconstructed', 'prêt-à-porter', 'sartorial'] },
+    scene: { basic: 'A person is wearing nice clothes. The colors are bright.', intermediate: 'The image shows a person dressed in a stylish outfit. They are wearing a combination of colors that works well together, and their overall look appears very fashionable.', advanced: 'The image presents an individual whose carefully curated ensemble reflects a strong personal aesthetic. The interplay of textures, tones, and tailoring conveys a confident sense of style that draws on both contemporary trends and timeless elegance.' },
+  },
+  movies: {
+    keywords: { A1: ['film', 'actor', 'scene', 'watch'], A2: ['director', 'cinema', 'screen', 'character'], B1: ['plot', 'genre', 'dialogue', 'special effects'], B2: ['cinematography', 'narrative', 'screenplay', 'sequence'], C1: ['mise-en-scène', 'protagonist', 'allegory', 'montage'], C2: ['auteur', 'diegetic', 'verisimilitude', 'denouement'] },
+    scene: { basic: 'There are actors in a movie. The scene looks exciting.', intermediate: 'The image appears to be a film still showing actors in a dramatic scene. The lighting and camera angle create a tense atmosphere, suggesting an important moment in the story.', advanced: 'The image captures what appears to be a pivotal cinematic moment in which the actors\' expressions and the carefully constructed mise-en-scène combine to generate a palpable sense of tension, inviting the viewer to speculate about the narrative context.' },
+  },
+  school: {
+    keywords: { A1: ['book', 'pen', 'class', 'teacher'], A2: ['student', 'lesson', 'homework', 'board'], B1: ['curriculum', 'lecture', 'assignment', 'campus'], B2: ['academic', 'curriculum', 'discipline', 'syllabus'], C1: ['pedagogy', 'scholarship', 'institution', 'assessment'], C2: ['epistemology', 'didactic', 'cognition', 'discourse'] },
+    scene: { basic: 'There is a classroom. Students are reading books.', intermediate: 'The image shows a school classroom where several students are seated at desks. A teacher appears to be writing on the whiteboard at the front of the room.', advanced: 'The image depicts an active learning environment in which students appear engaged with the material being presented. The arrangement of desks and the presence of educational resources suggest a structured yet collaborative approach to instruction.' },
+  },
+  city: {
+    keywords: { A1: ['street', 'car', 'building', 'road'], A2: ['traffic', 'sidewalk', 'bridge', 'bus'], B1: ['urban', 'district', 'pedestrian', 'landmark'], B2: ['metropolitan', 'infrastructure', 'commercial', 'transit'], C1: ['gentrification', 'zoning', 'skyline', 'municipality'], C2: ['urbanization', 'demographic', 'architectural', 'civic'] },
+    scene: { basic: 'There are big buildings. Many cars are on the street.', intermediate: 'The image shows a busy city street with tall buildings on both sides. People are walking on the sidewalks and several cars can be seen in the traffic below.', advanced: 'The image captures the dynamic atmosphere of an urban center where the interplay of towering architecture, bustling pedestrian movement, and flowing traffic creates a vivid portrait of contemporary metropolitan life.' },
+  },
+  beach: {
+    keywords: { A1: ['sea', 'sand', 'wave', 'sun'], A2: ['swim', 'coast', 'shore', 'towel'], B1: ['horizon', 'tropical', 'sunbathe', 'coastal'], B2: ['shoreline', 'tidal', 'seafront', 'marine'], C1: ['pristine', 'undulating', 'littoral', 'maritime'], C2: ['bathymetric', 'thalassic', 'pelagic', 'estuary'] },
+    scene: { basic: 'There is a beach. The water is blue and the sand is white.', intermediate: 'The image shows a beautiful beach with clear blue water and golden sand. A few people can be seen relaxing near the shore while gentle waves break in the background.', advanced: 'The image depicts a serene coastal scene in which the vast expanse of turquoise water meets a gently curving shoreline. The interplay of light on the water\'s surface and the soft texture of the sand evoke a sense of tranquility and natural beauty.' },
+  },
+  health: {
+    keywords: { A1: ['doctor', 'hospital', 'sick', 'medicine'], A2: ['patient', 'nurse', 'healthy', 'exercise'], B1: ['treatment', 'diagnosis', 'nutrition', 'fitness'], B2: ['symptom', 'prescription', 'therapy', 'prevention'], C1: ['rehabilitation', 'pathology', 'cardiovascular', 'immunology'], C2: ['epidemiology', 'pharmacological', 'oncology', 'prognosis'] },
+    scene: { basic: 'A doctor is helping a patient. They are in a hospital.', intermediate: 'The image shows a medical professional attending to a patient in what appears to be a clinic or hospital room. Medical equipment can be seen in the background, and the atmosphere appears calm and professional.', advanced: 'The image depicts a healthcare setting in which a medical professional appears to be conducting an examination or consultation. The clinical environment, with its specialized equipment and sterile surroundings, conveys a sense of focused care and medical expertise.' },
+  },
+  shopping: {
+    keywords: { A1: ['shop', 'buy', 'store', 'price'], A2: ['product', 'customer', 'receipt', 'sale'], B1: ['retailer', 'discount', 'browse', 'checkout'], B2: ['consumer', 'merchandise', 'transaction', 'vendor'], C1: ['procurement', 'commercial', 'expenditure', 'inventory'], C2: ['consumerism', 'commodification', 'retail', 'acquisition'] },
+    scene: { basic: 'People are in a shop. There are many things to buy.', intermediate: 'The image shows a busy shopping area where customers are browsing through items on display. Colorful products line the shelves and a cashier can be seen at the counter.', advanced: 'The image depicts a vibrant retail environment in which shoppers navigate aisles stocked with an array of merchandise. The careful arrangement of products and the behavior of the customers suggest a dynamic consumer space designed to encourage exploration and purchase.' },
+  },
+  family: {
+    keywords: { A1: ['mom', 'dad', 'child', 'home'], A2: ['parent', 'sibling', 'together', 'dinner'], B1: ['household', 'gathering', 'relative', 'celebrate'], B2: ['generation', 'nurture', 'bond', 'tradition'], C1: ['kinship', 'upbringing', 'familial', 'heritage'], C2: ['socialization', 'intergenerational', 'lineage', 'matriarchal'] },
+    scene: { basic: 'A family is together. They look happy.', intermediate: 'The image shows a family gathered together, possibly for a meal or celebration. Adults and children are smiling and appear to be enjoying each other\'s company in a warm home setting.', advanced: 'The image captures a tender family moment in which members of different generations appear united in a shared activity. The warmth conveyed through their expressions and proximity reflects the deep bonds of affection and mutual support that characterize close family relationships.' },
+  },
+};
+
+export function evaluateWithHeuristics(text, lang = 'es', category = 'all') {
   const isEs = lang === 'es';
 
   if (!text || text.trim().length < 3) {
@@ -318,18 +394,21 @@ export function evaluateWithHeuristics(text, lang = 'es') {
       ? 'Sigue ampliando descripciones con vocabulario más sofisticado y estructuras variadas'
       : 'Keep expanding descriptions with more sophisticated vocabulary and varied structures');
 
-  // ── Improved examples (generic, context-independent) ─────────────────────
-  const improvedExamples = {
-    basic:
-      'There are some people and objects in this picture. The colors are bright and the scene looks busy.',
-    intermediate:
-      'The image shows a lively scene where several people appear to be engaged in different activities. In the foreground, there are colorful objects that immediately catch the viewer\'s eye, while the background reveals a wider context.',
-    advanced:
-      'The image depicts a vibrant and dynamic scene in which individuals can be observed interacting with their surroundings. The foreground is dominated by a series of objects that suggest a sense of purposeful activity, while the background, though less defined, provides contextual details that enrich the overall composition and invite further interpretation.',
-  };
+  // ── Improved examples — category-aware when possible ─────────────────────
+  const catData = CATEGORY_DATA[category];
+  const improvedExamples = catData
+    ? catData.scene
+    : {
+        basic:
+          'There are some people and objects in this picture. The colors are bright and the scene looks busy.',
+        intermediate:
+          'The image shows a lively scene where several people appear to be engaged in different activities. In the foreground, there are colorful objects that immediately catch the viewer\'s eye, while the background reveals a wider context.',
+        advanced:
+          'The image depicts a vibrant and dynamic scene in which individuals can be observed interacting with their surroundings. The foreground is dominated by a series of objects that suggest a sense of purposeful activity, while the background, though less defined, provides contextual details that enrich the overall composition and invite further interpretation.',
+      };
 
-  // ── Keywords by level ─────────────────────────────────────────────────────
-  const KEYWORDS = {
+  // ── Keywords — category-aware when possible, otherwise by level ───────────
+  const LEVEL_KEYWORDS = {
     A1: ['color', 'person', 'big', 'there is'],
     A2: ['there are', 'next to', 'wearing', 'looks like'],
     B1: ['appears to', 'in the foreground', 'might be', 'while'],
@@ -337,6 +416,7 @@ export function evaluateWithHeuristics(text, lang = 'es') {
     C1: ['conveys', 'composition', 'predominantly', 'furthermore'],
     C2: ['juxtaposition', 'connotes', 'elucidates', 'cohesion'],
   };
+  const keywords = catData ? catData.keywords[level] : LEVEL_KEYWORDS[level];
 
   // ── isRelevant — detecta texto no inglés o completamente incoherente ────────
   const alphaWords = words.filter(w => /^[a-z]{2,}$/.test(w));
@@ -379,7 +459,7 @@ export function evaluateWithHeuristics(text, lang = 'es') {
     strengths: strList.join('. ') + '.',
     improvements: impList.join('. ') + '.',
     improvedExamples,
-    keywords: KEYWORDS[level],
+    keywords,
     isFallback: true,
   };
 }

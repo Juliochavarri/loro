@@ -38,7 +38,7 @@ const translations = {
     returnHome: "Volver a Clasificación",
     strengths: "✓ FORTALEZAS",
     improvements: "↑ A MEJORAR",
-    vocabKey: "⭐ VOCABULARIO CLAVE",
+    vocabKey: "⭐ KEY WORDS",
     improvedExample: "💡 EJEMPLO MEJORADO",
     
     // LoginPage
@@ -97,7 +97,7 @@ const translations = {
     returnHome: "Return to Categories",
     strengths: "✓ STRENGTHS",
     improvements: "↑ TO IMPROVE",
-    vocabKey: "⭐ KEY VOCABULARY",
+    vocabKey: "⭐ KEY WORDS",
     improvedExample: "💡 IMPROVED EXAMPLE",
     
     // LoginPage
