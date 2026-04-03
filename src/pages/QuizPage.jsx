@@ -25,6 +25,7 @@ export default function QuizPage() {
 
   const abortRef = useRef(null);
   const lastSceneIdRef = useRef(null);
+  const fetchIdRef = useRef(0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,8 +81,10 @@ export default function QuizPage() {
   };
 
   const fetchNewImage = async () => {
-    // Cancela cualquier fetch anterior en vuelo
     if (abortRef.current) abortRef.current.abort();
+
+    const myId = ++fetchIdRef.current;
+    const isStale = () => myId !== fetchIdRef.current;
 
     setLoadingImg(true);
 
@@ -97,7 +100,6 @@ export default function QuizPage() {
 
     const controller = new AbortController();
     abortRef.current = controller;
-    // Timeout de 5s — si LoremFlickr no responde, cae a SVG
     const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     try {
@@ -106,26 +108,26 @@ export default function QuizPage() {
         { signal: controller.signal }
       );
       clearTimeout(timeoutId);
+      if (isStale()) return;
       if (!res.ok) throw new Error('fetch failed');
       const blob = await res.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
+        if (isStale()) return;
         try {
           setImageBase64(reader.result.split(',')[1]);
           setImageUrl(reader.result);
+          setLoadingImg(false);
         } catch {
           svgFallback(activeCategory);
-          return;
         }
-        setLoadingImg(false);
       };
-      reader.onerror = () => svgFallback(activeCategory);
+      reader.onerror = () => { if (!isStale()) svgFallback(activeCategory); };
       reader.readAsDataURL(blob);
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err.name !== 'AbortError') {
-        console.warn('LoremFlickr failed, using SVG fallback:', err.message);
-      }
+      if (isStale()) return;  // fetch abortado por un reload más reciente — no hacer nada
+      console.warn('LoremFlickr failed, SVG fallback:', err.message);
       svgFallback(activeCategory);
     }
   };
