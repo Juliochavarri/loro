@@ -49,35 +49,21 @@ export default function QuizPage() {
   const svgFallback = (activeCategory) => {
     const matchingScenes = SCENES.filter(s => s.id === activeCategory);
     const pool = matchingScenes.length > 0 ? matchingScenes : SCENES;
-    // Evita repetir la misma escena consecutivamente
-    const candidates = pool.length > 1 ? pool.filter(s => s.id !== lastSceneIdRef.current) : pool;
+    const candidates = pool.length > 1
+      ? pool.filter(s => s.id !== lastSceneIdRef.current)
+      : pool;
     const randomScene = candidates[Math.floor(Math.random() * candidates.length)];
     lastSceneIdRef.current = randomScene.id;
-    // Reemplaza width/height relativos por píxeles absolutos para que el <img> los renderice
+
+    // Data URL directo — no requiere canvas ni callbacks async
     const svgContent = randomScene.svg
       .replace(/width="100%"/, 'width="600"')
       .replace(/height="100%"/, 'height="400"');
-    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    setImageUrl(url);
-    const img = new Image();
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 600; canvas.height = 400;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 600, 400);
-        ctx.drawImage(img, 0, 0, 600, 400);
-        setImageBase64(canvas.toDataURL('image/jpeg', 0.9).split(',')[1]);
-      } catch {
-        setImageBase64('');
-      } finally {
-        setLoadingImg(false);
-      }
-    };
-    img.onerror = () => { setImageBase64(''); setLoadingImg(false); };
-    img.src = url;
+    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
+
+    setImageBase64(''); // sin base64 → evaluación por heurísticas
+    setImageUrl(dataUrl);
+    setLoadingImg(false);
   };
 
   const fetchNewImage = async () => {
