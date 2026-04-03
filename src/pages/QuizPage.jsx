@@ -21,7 +21,7 @@ export default function QuizPage() {
   const [isEvaluating, setIsEvaluating] = useState(false);
 
   const [showSettings, setShowSettings] = useState(false);
-  const [apiKey, setApiKey] = useState('AIzaSyCCbtGYuofzQnizhpfUZ13OesIWq2YYWcY');
+  const [apiKey, setApiKey] = useState('');
 
   const abortRef = useRef(null);
   const lastSceneIdRef = useRef(null);
