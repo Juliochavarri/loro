@@ -1,8 +1,6 @@
-export async function evaluateWithAI(imageBase64, mimeType, text, apiKey, lang = 'es') {
-  if (!apiKey) {
-    throw new Error('API Key is missing');
-  }
+const PROXY_URL = 'https://gemini-proxy.vercel.app/api/generate';
 
+export async function evaluateWithAI(imageBase64, mimeType, text, _apiKey, lang = 'es') {
   const languageName = lang === 'en' ? 'English' : 'Spanish';
 
   const prompt = `
@@ -63,7 +61,7 @@ Return ONLY a perfectly formatted JSON object with no markdown formatting and no
 
   for (const model of modelsToTry) {
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      const response = await fetch(`${PROXY_URL}?model=${model}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -92,8 +90,8 @@ Return ONLY a perfectly formatted JSON object with no markdown formatting and no
       console.warn(`[AI Eval] Fallo con ${model}:`, error.message);
       lastError = error;
       
-      // Si el error indica llave inválida u otro error fatal que no es de sobrecarga, no reintentamos
-      if (error.message.toLowerCase().includes('api key not valid')) {
+      // No reintentar si el proxy devuelve error fatal (no de cuota)
+      if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('unauthorized')) {
         throw error;
       }
       

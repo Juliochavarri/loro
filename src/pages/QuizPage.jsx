@@ -131,9 +131,9 @@ export default function QuizPage() {
   const handleSubmit = async (text) => {
     setIsEvaluating(true);
     try {
-      if (apiKey && imageBase64) {
-        // AI VIsion Evaluation
-        const result = await evaluateWithAI(imageBase64, 'image/jpeg', text, apiKey, lang);
+      if (imageBase64) {
+        // AI Vision Evaluation via proxy
+        const result = await evaluateWithAI(imageBase64, 'image/jpeg', text, null, lang);
         setEvaluationData(result);
       } else {
         setEvaluationData(evaluateWithHeuristics(text, lang, activeCategoryRef.current));
